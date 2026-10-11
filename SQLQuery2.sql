@@ -70,7 +70,11 @@ INSERT INTO Enrollments (StudentID, CourseID, Semester) VALUES
 (2, 1, 'Fall 2026'), 
 (3, 3, 'Fall 2026'); 
 GO
-
+--We use CREATE word to have a table that can represent its entities and to have a its data.
+-- we use INSERT VALUES Statment with a specific syntax to avoid Error like:
+--INSERT INTO TABLENAME(COL1,COL2,COL3)
+--VALUES('john',2,3);
+--; REPRESENTS QUERY IS FINISHED.    
 
 SELECT 
     S.FirstName + ' ' + S.LastName AS StudentName,
@@ -79,7 +83,7 @@ SELECT
 FROM Enrollments E
 JOIN Students S ON E.StudentID = S.StudentID
 JOIN Courses C ON E.CourseID = C.CourseID;
---This code of block is used to JOIN the first and second name as a student name and list their respective Courses , StudentID 
+--This code of block is used to JOIN the first and last name as a full student name and list their respective Courses , StudentID 
 --Semester to be displayed in a table.
 
 --OPERATIONS ON SQL
