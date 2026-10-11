@@ -40,6 +40,29 @@ CREATE TABLE Enrollments (
 );
 GO
 
+CREATE TABLE Instructors (
+    InstructorID INT IDENTITY(1,1) PRIMARY KEY,
+    FirstName VARCHAR(50) NOT NULL,
+    LastName VARCHAR(50) NOT NULL,
+    Email VARCHAR(100) UNIQUE NOT NULL,
+    
+   
+    EmploymentStatus VARCHAR(20) NOT NULL 
+        CONSTRAINT CK_Instructor_Status CHECK (EmploymentStatus IN ('Full-time', 'Part-time')),
+    
+    OfficeRoom VARCHAR(10) NULL,
+    Salary DECIMAL(10,2) NULL,
+    
+    
+    DeptID INT NOT NULL,
+    CONSTRAINT FK_Instructors_Departments FOREIGN KEY (DeptID) 
+        REFERENCES Departments(DeptID) 
+        ON DELETE CASCADE
+);
+
+
+GO
+
 
 USE UniversityDB;
 GO
@@ -70,11 +93,22 @@ INSERT INTO Enrollments (StudentID, CourseID, Semester) VALUES
 (2, 1, 'Fall 2026'), 
 (3, 3, 'Fall 2026'); 
 GO
+
+INSERT INTO Instructors (FirstName, LastName, Email, EmploymentStatus, OfficeRoom, Salary, DeptID)
+VALUES 
+('Alan', 'Turing', 'a.turing@university.edu', 'Full-time', 'Room 401', 85000.00, 1),
+('Grace', 'Hopper', 'g.hopper@university.edu', 'Full-time', 'Room 402', 90000.00, 1),
+('Ada', 'Lovelace', 'a.lovelace@university.edu', 'Part-time', 'Room 210', 45000.00, 2),
+('Charles', 'Babbage', 'c.babbage@university.edu', 'Part-time', 'Room 212', 42000.00, 2);
+GO
+
 --We use CREATE word to have a table that can represent its entities and to have a its data.
 -- we use INSERT VALUES Statment with a specific syntax to avoid Error like:
 --INSERT INTO TABLENAME(COL1,COL2,COL3)
 --VALUES('john',2,3);
---; REPRESENTS QUERY IS FINISHED.    
+-- ; REPRESENTS QUERY IS FINISHED. 
+
+SELECT * FROM Instructors 
 
 SELECT 
     S.FirstName + ' ' + S.LastName AS StudentName,
@@ -83,8 +117,37 @@ SELECT
 FROM Enrollments E
 JOIN Students S ON E.StudentID = S.StudentID
 JOIN Courses C ON E.CourseID = C.CourseID;
---This code of block is used to JOIN the first and last name as a full student name and list their respective Courses , StudentID 
+--This code of block is used to JOIN the first and second name as a student name and list their respective Courses , StudentID 
 --Semester to be displayed in a table.
+
+SELECT 
+    I.InstructorID,
+    I.FirstName + ' ' + I.LastName AS InstructorName,
+    I.EmploymentStatus,
+    I.OfficeRoom,
+    D.DeptName, 
+FROM Instructors I
+INNER JOIN Departments D ON I.DeptID = D.DeptID;
+-- This pulls the text name from your Departments table the INNER JOIN function.
+
+SELECT 
+    C.CourseID,
+    C.CourseName,
+    I.FirstName + ' ' + I.LastName AS ProfessorName,
+    I.EmploymentStatus,
+    I.Salary AS InstructorSalary
+FROM Courses C
+INNER JOIN Instructors I ON C.InstructorID = I.InstructorID;
+
+SELECT
+    EmploymentStatus,
+    COUNT(InstructorID) AS TotalProfessors,
+    SUM(Salary) AS TotalSalaryBudget,
+    AVG(Salary) AS AverageSalary
+FROM Instructors
+GROUP BY EmploymentStatus;
+--• This is the engine of the query. Instead of looking at your professors as individual people, 
+--SQL searches through your table and splits your data rows into separate, isolated buckets based on matching values in the EmploymentStatus column.
 
 --OPERATIONS ON SQL
 SELECT * FROM Students
@@ -98,6 +161,24 @@ WHERE FirstName = 'Ali';
 
 --Explanation: SELECT tells SQL what columns you want to see. Using an asterisk (*) means "show me all columns". 
 --FROM tells SQL which specific table to look inside And WHERE tells the condition if needed.
+-- Let's check what CourseIDs you have first, or assign them like this:
+-- (Assuming your Course IDs or Names match standard classes)
+
+
+UPDATE Courses 
+SET InstructorID = 1 
+WHERE CourseName LIKE '%Database%' OR CourseID = 5001;
+
+
+UPDATE Courses 
+SET InstructorID = 2 
+WHERE CourseName LIKE '%Web%' OR CourseID = 5002;
+
+UPDATE Courses 
+SET InstructorID = 3 
+WHERE CourseID = 5003; 
+GO
+-- Assign Professor to specific course.
 
 
 UPDATE Students
@@ -178,6 +259,21 @@ SELECT SUM(Credits) AS [TotalCredits Offered] FROM Courses;
 ALTER TABLE Students
 ADD PhoneNumber VARCHAR(15);
 -- To add phone number it has to be INSERTED or UPDATED
+
+USE UniversityDB;
+GO
+
+ALTER TABLE Courses
+ADD InstructorID INT NULL; 
+
+ALTER TABLE Courses
+ADD CONSTRAINT FK_Courses_Instructors FOREIGN KEY (InstructorID)
+REFERENCES Instructors(InstructorID)
+ON DELETE SET NULL;
+GO
+-- 1. Add the InstructorID column to Courses
+-- 2. Add the Foreign Key constraint to link it to the Instructors table
+-- If a professor leaves, the course stays, but the teacher becomes blank
 
 ALTER TABLE Students
 DROP COLUMN PhoneNumber;
