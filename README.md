@@ -11,6 +11,7 @@ The system uses a highly structured relational system consisting of 4 core table
 *   **Students:** Tracks student enrollment records and dynamically links them to departments.
 *   **Courses:** Manages university course offerings, catalogs, and credit distributions.
 *   **Enrollments:** A junction/associative table handling the many-to-many relationship mapping students to their respective courses per semester.
+*   **Instructors:** they are assigned courses and are from specific departments.
 
 ## 🚀 Key SQL Concepts Implemented
 
